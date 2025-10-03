@@ -2,7 +2,7 @@ import java.math.BigInteger;
 import java.util.Random;
 import java.util.ArrayList;
 
-class NumberMath implements Runnable{
+class NumberMath {
 
     ArrayList <BigInteger> a;
     ArrayList <BigInteger> b;
@@ -55,16 +55,57 @@ class NumberMath implements Runnable{
         return sum;
     }
 
+    BigInteger array_a_difference_of_pair_products() {
+        BigInteger sum = BigInteger.ZERO;
+        int pairCounter = 0;
+
+        for (int i = 0; i < a.size() - 1; i += 2) {
+            BigInteger num1 = a.get(i);
+            BigInteger num2 = a.get(i + 1);
+
+            String groupName = (pairCounter % 2 == 0) ? "ONE" : "TWO";
+            BigInteger pairDifference = num1.subtract(num2);
+            System.out.printf("A-%s %s %s %s %d %d\n", groupName, num1, num2, pairDifference, i, i + 1);
+
+            BigInteger p = num1.multiply(num2);
+            sum = sum.add(p);
+            pairCounter++;
+        }
+        return sum;
+    }
+
+    BigInteger array_b_difference_of_pair_products() {
+        BigInteger sum = BigInteger.ZERO;
+        int pairCounter = 0;
+
+        for (int i = 0; i < b.size() - 1; i += 2) {
+            BigInteger num1 = b.get(i);
+            BigInteger num2 = b.get(i + 1);
+
+            String groupName = (pairCounter % 2 == 0) ? "ONE" : "TWO";
+            BigInteger pairDifference = num1.subtract(num2);
+            System.out.printf("B-%s %s %s %s %d %d\n", groupName, num1, num2, pairDifference, i, i + 1);
+
+            BigInteger p = num1.multiply(num2);
+            sum = sum.add(p);
+            pairCounter++;
+        }
+        return sum;
+    }
+
     BigInteger difference_of_array_a_and_b() {
         BigInteger sum_a = array_a_sum_of_pair_products();
         BigInteger sum_b = array_b_sum_of_pair_products();
         return sum_a.subtract(sum_b);
     }
 
-    @Override
-    public void run() {
-
+    BigInteger sum_of_array_a_and_b() {
+        BigInteger sum_a = array_a_difference_of_pair_products();
+        BigInteger sum_b = array_b_difference_of_pair_products();
+        return sum_a.add(sum_b);
     }
+
+
 }
 
 class Main{
@@ -78,7 +119,8 @@ class Main{
     }
 
     public static void main(String[] args) throws InterruptedException {
-        System.out.println("Variant 9 - Hamuev Oleg - PART 1 - START");
+        System.out.println("=====================HAMUEV OLEG S-T-A-R-T=====================" );
+        System.out.println("Variant 9 - Hamuev Oleg - START");
         ArrayList<BigInteger> arrayA = generateRandomArray();
         ArrayList<BigInteger> arrayB = generateRandomArray();
 
@@ -108,10 +150,13 @@ class Main{
         BigInteger sumA = results[0];
         BigInteger sumB = results[1];
         BigInteger difference = math.difference_of_array_a_and_b();
+        BigInteger sum        = math.sum_of_array_a_and_b();
 
         System.out.println("Sum of pair products in A: " + sumA);
         System.out.println("Sum of pair products in B: " + sumB);
-        System.out.println("Difference: " + difference);
-        System.out.println("Variant 9 - Hamuev Oleg - PART 1 - END");
+        System.out.println("Difference(PART-1): " + difference);
+        System.out.println("Sum(PART-2): " + sum);
+        System.out.println("Variant 9 - Hamuev Oleg - END");
+        System.out.println("=====================HAMUEV OLEG E-N-D=====================" );
     }
 }
