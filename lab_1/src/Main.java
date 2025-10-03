@@ -1,97 +1,117 @@
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Random;
+import java.util.ArrayList;
 
-class NumberDifference {
+class NumberMath implements Runnable{
 
-    ArrayList<Integer> a;
-    ArrayList<Integer> b;
-
-    NumberDifference(ArrayList<Integer> a, ArrayList<Integer> b) {
+    ArrayList <BigInteger> a;
+    ArrayList <BigInteger> b;
+    NumberMath(ArrayList <BigInteger> a, ArrayList <BigInteger> b){
         this.a = a;
         this.b = b;
     }
 
-    BigInteger getProduct() {
-        BigInteger product = BigInteger.ONE;
-        for (int number : a) {
-            if (number == 0) return BigInteger.ZERO;
-            product = product.multiply(BigInteger.valueOf(number));
-        }
-        return product;
+    final Random rand = new Random();
+
+    int random_number_generation(){
+        return rand.nextInt(101) * 2;
     }
 
-    BigInteger getProduct2() {
-        BigInteger product = BigInteger.ONE;
-        for (int number : b) {
-            if (number == 0) return BigInteger.ZERO;
-            product = product.multiply(BigInteger.valueOf(number));
+    BigInteger array_a_sum_of_pair_products() {
+        BigInteger sum = BigInteger.ZERO;
+        int pairCounter = 0;
+
+        for (int i = 0; i < a.size() - 1; i += 2) {
+            BigInteger num1 = a.get(i);
+            BigInteger num2 = a.get(i + 1);
+
+            String groupName = (pairCounter % 2 == 0) ? "ONE" : "TWO";
+            BigInteger pairSum = num1.add(num2);
+            System.out.printf("A-%s %s %s %s %d %d\n", groupName, num1, num2, pairSum, i, i + 1);
+
+            BigInteger p = num1.multiply(num2);
+            sum = sum.add(p);
+            pairCounter++;
         }
-        return product;
+        return sum;
     }
 
-    BigInteger getDifference() {
-        return getProduct().subtract(getProduct2());
+    BigInteger array_b_sum_of_pair_products() {
+        BigInteger sum = BigInteger.ZERO;
+        int pairCounter = 0;
+
+        for (int i = 0; i < b.size() - 1; i += 2) {
+            BigInteger num1 = b.get(i);
+            BigInteger num2 = b.get(i + 1);
+
+            String groupName = (pairCounter % 2 == 0) ? "ONE" : "TWO";
+            BigInteger pairSum = num1.add(num2);
+            System.out.printf("B-%s %s %s %s %d %d\n", groupName, num1, num2, pairSum, i, i + 1);
+
+            BigInteger p = num1.multiply(num2);
+            sum = sum.add(p);
+            pairCounter++;
+        }
+        return sum;
+    }
+
+    BigInteger difference_of_array_a_and_b() {
+        BigInteger sum_a = array_a_sum_of_pair_products();
+        BigInteger sum_b = array_b_sum_of_pair_products();
+        return sum_a.subtract(sum_b);
+    }
+
+    @Override
+    public void run() {
+
     }
 }
 
-public class Main {
-    public static void main(String[] args) {
-        Random random = new Random();
-        ArrayList<Integer> numbers = new ArrayList<>();
+class Main{
+    static ArrayList<BigInteger> generateRandomArray() {
+        Random rand = new Random();
+        ArrayList<BigInteger> result = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
-            numbers.add(random.nextInt(101));
+            result.add(BigInteger.valueOf(rand.nextInt(101)));
         }
+        return result;
+    }
 
-        System.out.println("Result:");
-        for (int i = 0; i < numbers.size(); i++) {
-            System.out.print(numbers.get(i) + (i % 20 == 19 ? "\n" : " "));
-        }
-        System.out.println();
+    public static void main(String[] args) throws InterruptedException {
+        System.out.println("Variant 9 - Hamuev Oleg - PART 1 - START");
+        ArrayList<BigInteger> arrayA = generateRandomArray();
+        ArrayList<BigInteger> arrayB = generateRandomArray();
 
-        ArrayList<Integer> groupOne = new ArrayList<>();
-        ArrayList<Integer> groupTwo = new ArrayList<>();
+        NumberMath math = new NumberMath(arrayA, arrayB);
 
-        ArrayList<Integer> tempPair = new ArrayList<>();
-        ArrayList<Integer> tempIndices = new ArrayList<>();
-        boolean isGroupOneTurn = true;
+        final BigInteger[] results = new BigInteger[2];
 
-        for (int i = 0; i < numbers.size(); i++) {
-            int currentNumber = numbers.get(i);
-            if (currentNumber % 2 == 0) {
-                tempPair.add(currentNumber);
-                tempIndices.add(i);
+        Thread threadA = new Thread(() -> {
+            results[0] = math.array_a_sum_of_pair_products();
+            System.out.println("Thread for Array A finished calculation.");
+        });
 
-                if (tempPair.size() == 2) {
-                    int num1 = tempPair.get(0);
-                    int num2 = tempPair.get(1);
-                    int index1 = tempIndices.get(0);
-                    int index2 = tempIndices.get(1);
-                    String groupName;
+        Thread threadB = new Thread(() -> {
+            results[1] = math.array_b_sum_of_pair_products();
+            System.out.println("Thread for Array B finished calculation.");
+        });
 
-                    if (isGroupOneTurn) {
-                        groupName = "First";
-                        groupOne.add(num1);
-                        groupOne.add(num2);
-                    } else {
-                        groupName = "Second";
-                        groupTwo.add(num1);
-                        groupTwo.add(num2);
-                    }
-                    System.out.printf("%s %d %d %d %d %d\n", groupName, num1, num2, num1 + num2, index1, index2);
+        System.out.println("Array A: " + arrayA);
+        System.out.println("Array B: " + arrayB);
 
-                    isGroupOneTurn = !isGroupOneTurn;
-                    tempPair.clear();
-                    tempIndices.clear();
-                }
-            }
-        }
+        threadA.start();
+        threadB.start();
 
-        NumberDifference calculator = new NumberDifference(groupOne, groupTwo);
-        BigInteger difference = calculator.getDifference();
+        threadA.join();
+        threadB.join();
 
-        System.out.println("\n First Product group: " + calculator.getProduct());
-        System.out.println("\n Second Product group: " + calculator.getProduct2());
-        System.out.println("\n Difference of product: " + difference);
+        BigInteger sumA = results[0];
+        BigInteger sumB = results[1];
+        BigInteger difference = math.difference_of_array_a_and_b();
+
+        System.out.println("Sum of pair products in A: " + sumA);
+        System.out.println("Sum of pair products in B: " + sumB);
+        System.out.println("Difference: " + difference);
+        System.out.println("Variant 9 - Hamuev Oleg - PART 1 - END");
     }
 }
