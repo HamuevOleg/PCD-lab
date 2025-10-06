@@ -2,24 +2,23 @@ import java.math.BigInteger;
 import java.util.Random;
 import java.util.ArrayList;
 import javax.swing.*;
+import javax.swing.border.*;
 import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.*;
 
 class NumberMath {
 
     ArrayList <BigInteger> a;
     ArrayList <BigInteger> b;
     JTextArea outputArea;
+    String threadName;
 
-    NumberMath(ArrayList <BigInteger> a, ArrayList <BigInteger> b, JTextArea outputArea){
+    NumberMath(ArrayList <BigInteger> a, ArrayList <BigInteger> b, JTextArea outputArea, String threadName){
         this.a = a;
         this.b = b;
         this.outputArea = outputArea;
-    }
-
-    final Random rand = new Random();
-
-    int random_number_generation(){
-        return rand.nextInt(101) * 2;
+        this.threadName = threadName;
     }
 
     void log(String message) {
@@ -30,324 +29,303 @@ class NumberMath {
         });
     }
 
-    BigInteger array_a_sum_of_pair_products() {
-        ArrayList<BigInteger> even_numbers = new ArrayList<>();
-        for (int i = 0; i < a.size(); i++) {
-            if (a.get(i).mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
-                even_numbers.add(a.get(i));
+    private BigInteger processPairProducts(ArrayList<BigInteger> array, boolean flag, String threadName) {
+        ArrayList<BigInteger> evenNumbers = new ArrayList<>();
+        for (BigInteger num : array) {
+            // num % 2 = 0 if true -> array + element
+            if (num.mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
+                evenNumbers.add(num);
             }
         }
 
-        BigInteger sum = BigInteger.ZERO;
+        BigInteger result = BigInteger.ZERO;
         int pairCounter = 0;
         int processedElements = 0;
-        for (int i = 0; i < even_numbers.size(); i += 4) {
+        ArrayList<BigInteger> remainingArray = new ArrayList<>(evenNumbers);
 
-            if (i + 3 < even_numbers.size()) {
-                BigInteger tmp1 = even_numbers.get(i);
-                BigInteger tmp2 = even_numbers.get(i + 1);
-                BigInteger tmp3 = even_numbers.get(i + 2);
-                BigInteger tmp4 = even_numbers.get(i + 3);
-                BigInteger tmp = tmp1.multiply(tmp3).add(tmp2.multiply(tmp4));
-                sum = sum.add(tmp);
-                pairCounter++;
-                processedElements = i + 4;
-                System.out.println("Full pair, Pair: "+pairCounter);
+        for (int i = 0; i + 3 < evenNumbers.size(); i += 4) {
+            BigInteger val1 = evenNumbers.get(i);
+            BigInteger val2 = evenNumbers.get(i + 1);
+            BigInteger val3 = evenNumbers.get(i + 2);
+            BigInteger val4 = evenNumbers.get(i + 3);
+
+            BigInteger pairProduct;
+
+            pairProduct = flag ? val1.multiply(val3) : val2.multiply(val4);
+
+            result = flag ? result.add(pairProduct) : result.subtract(pairProduct);
+            pairCounter++;
+            processedElements = i + 4;
+
+            for (int j = 0; j < 4; j++) {
+                if (!remainingArray.isEmpty())
+                    remainingArray.removeFirst();
             }
+
+            String message = threadName + " - [" + result + "] - " + remainingArray;
+            log(message);
         }
 
-        int remain = even_numbers.size() - processedElements;
-        //if only 1 remaining element
+        int remain = evenNumbers.size() - processedElements;
+
+        //1 element in array
         if (remain == 1) {
-            BigInteger tmp = even_numbers.get(processedElements);
-            sum = sum.add(tmp);
-            System.out.println("Only one element left");
+            BigInteger val = evenNumbers.get(processedElements);
+            result = flag ? result.add(val) : result.subtract(val);
+            log(threadName + " - One element left: " + val);
         }
-        //if 2 remaining elements
+        //2 elements in array
         else if (remain == 2) {
-            BigInteger a = even_numbers.get(processedElements);
-            BigInteger b = even_numbers.get(processedElements + 1);
-            BigInteger tmp = a.multiply(b);
-            sum = sum.add(tmp);
-            System.out.println("Two elements left");
+            BigInteger val1 = evenNumbers.get(processedElements);
+            BigInteger val2 = evenNumbers.get(processedElements + 1);
+            BigInteger product = val1.multiply(val2);
+            result = flag ? result.add(product) : result.subtract(product);
+            log(threadName + " - Two elements left: " + val1 + ", " + val2);
         }
-        //if 3 remaining elements
+        //3 elements in array
         else if (remain == 3) {
-            BigInteger a = even_numbers.get(processedElements);
-            BigInteger b = even_numbers.get(processedElements + 1);
-            BigInteger c = even_numbers.get(processedElements + 2);
-            BigInteger tmp = a.multiply(c).add(b);
-            sum = sum.add(tmp);
-            System.out.println("Three elements left");
+            BigInteger val1 = evenNumbers.get(processedElements);
+            BigInteger val2 = evenNumbers.get(processedElements + 1);
+            BigInteger val3 = evenNumbers.get(processedElements + 2);
+            BigInteger combined;
+            if (flag) {
+                combined = val1.multiply(val3).add(val2);
+            } else {
+                combined = val1.multiply(val3).subtract(val2);
+            }
+            result = flag ? result.add(combined) : result.subtract(combined);
+            log(threadName + " - Three elements left: " + val1 + ", " + val2 + ", " + val3);
         }
-        System.out.println(sum);
-        return sum;
+
+        log(threadName + " - Final result: " + result);
+        return result;
+    }
+
+    BigInteger array_a_sum_of_pair_products() {
+        return processPairProducts(a, true, threadName);
     }
 
     BigInteger array_b_sum_of_pair_products() {
-        ArrayList<BigInteger> even_numbers = new ArrayList<>();
-        for (int i = 0; i < b.size(); i++) {
-            if (b.get(i).mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
-                even_numbers.add(b.get(i));
-            }
-        }
-
-        BigInteger sum = BigInteger.ZERO;
-        int pairCounter = 0;
-        int processedElements = 0;
-        for (int i = 0; i < even_numbers.size(); i += 4) {
-
-            if (i + 3 < even_numbers.size()) {
-                BigInteger tmp1 = even_numbers.get(i);
-                BigInteger tmp2 = even_numbers.get(i + 1);
-                BigInteger tmp3 = even_numbers.get(i + 2);
-                BigInteger tmp4 = even_numbers.get(i + 3);
-                BigInteger tmp = tmp1.multiply(tmp3).add(tmp2.multiply(tmp4));
-                sum = sum.add(tmp);
-                pairCounter++;
-                processedElements = i + 4;
-                System.out.println("Full pair, Pair: "+pairCounter);
-            }
-        }
-
-        int remain = even_numbers.size() - processedElements;
-        //if only 1 remaining element
-        if (remain == 1) {
-            BigInteger tmp = even_numbers.get(processedElements);
-            sum = sum.add(tmp);
-            System.out.println("Only one element left");
-        }
-        //if 2 remaining elements
-        else if (remain == 2) {
-            BigInteger a = even_numbers.get(processedElements);
-            BigInteger b = even_numbers.get(processedElements + 1);
-            BigInteger tmp = a.multiply(b);
-            sum = sum.add(tmp);
-            System.out.println("Two elements left");
-        }
-        //if 3 remaining elements
-        else if (remain == 3) {
-            BigInteger a = even_numbers.get(processedElements);
-            BigInteger b = even_numbers.get(processedElements + 1);
-            BigInteger c = even_numbers.get(processedElements + 2);
-            BigInteger tmp = a.multiply(c).add(b);
-            sum = sum.add(tmp);
-            System.out.println("Three elements left");
-        }
-        System.out.println(sum);
-        return sum;
+        return processPairProducts(b, true, threadName);
     }
 
     BigInteger array_a_difference_of_pair_products() {
-        ArrayList<BigInteger> even_numbers = new ArrayList<>();
-        for (int i = 0; i < a.size(); i++) {
-            if (a.get(i).mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
-                even_numbers.add(a.get(i));
-            }
-        }
-
-        BigInteger sum = BigInteger.ZERO;
-        int pairCounter = 0;
-        int processedElements = 0;
-        for (int i = 0; i < even_numbers.size(); i += 4) {
-
-            if (i + 3 < even_numbers.size()) {
-                BigInteger tmp1 = even_numbers.get(i);
-                BigInteger tmp2 = even_numbers.get(i + 1);
-                BigInteger tmp3 = even_numbers.get(i + 2);
-                BigInteger tmp4 = even_numbers.get(i + 3);
-                BigInteger tmp = tmp1.multiply(tmp3).add(tmp2.multiply(tmp4));
-                sum = sum.subtract(tmp);
-                pairCounter++;
-                processedElements = i + 4;
-                System.out.println("Full pair, Pair: "+pairCounter);
-            }
-        }
-
-        int remain = even_numbers.size() - processedElements;
-        //if only 1 remaining element
-        if (remain == 1) {
-            BigInteger tmp = even_numbers.get(processedElements);
-            sum = sum.subtract(tmp);
-            System.out.println("Only one element left");
-        }
-        //if 2 remaining elements
-        else if (remain == 2) {
-            BigInteger a = even_numbers.get(processedElements);
-            BigInteger b = even_numbers.get(processedElements + 1);
-            BigInteger tmp = a.multiply(b);
-            sum = sum.add(tmp);
-            System.out.println("Two elements left");
-        }
-        //if 3 remaining elements
-        else if (remain == 3) {
-            BigInteger a = even_numbers.get(processedElements);
-            BigInteger b = even_numbers.get(processedElements + 1);
-            BigInteger c = even_numbers.get(processedElements + 2);
-            BigInteger tmp = a.multiply(c).add(b);
-            sum = sum.add(tmp);
-            System.out.println("Three elements left");
-        }
-        System.out.println(sum);
-        return sum;
+        return processPairProducts(a, false, threadName);
     }
 
     BigInteger array_b_difference_of_pair_products() {
-        ArrayList<BigInteger> even_numbers = new ArrayList<>();
-        for (int i = 0; i < b.size(); i++) {
-            if (b.get(i).mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
-                even_numbers.add(b.get(i));
+        return processPairProducts(b, false, threadName);
+    }
+}
+
+class GradientButton extends JButton {
+    private final Color color1;
+    private final Color color2;
+    private boolean isHovered = false;
+
+    public GradientButton(String text, Color c1, Color c2) {
+        super(text);
+        this.color1 = c1;
+        this.color2 = c2;
+        setContentAreaFilled(false);
+        setFocusPainted(false);
+        setBorderPainted(false);
+        setForeground(Color.WHITE);
+        setFont(new Font("Segoe UI", Font.BOLD, 15));
+        setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                isHovered = true;
+                repaint();
             }
-        }
 
-        BigInteger difference = BigInteger.ZERO;
-        int pairCounter = 0;
-        int processedElements = 0;
-        for (int i = 0; i < even_numbers.size(); i += 4) {
-
-            if (i + 3 < even_numbers.size()) {
-                BigInteger tmp1 = even_numbers.get(i);
-                BigInteger tmp2 = even_numbers.get(i + 1);
-                BigInteger tmp3 = even_numbers.get(i + 2);
-                BigInteger tmp4 = even_numbers.get(i + 3);
-                BigInteger tmp = tmp1.multiply(tmp3).add(tmp2.multiply(tmp4));
-                difference = difference.subtract(tmp);
-                pairCounter++;
-                processedElements = i + 4;
-                System.out.println("Full pair, Pair: "+pairCounter);
+            public void mouseExited(MouseEvent e) {
+                isHovered = false;
+                repaint();
             }
+        });
+    }
+
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        int w = getWidth();
+        int h = getHeight();
+
+        GradientPaint gp;
+        if (isHovered) {
+            gp = new GradientPaint(0, 0, color1.brighter(), w, h, color2.brighter());
+        } else {
+            gp = new GradientPaint(0, 0, color1, w, h, color2);
         }
 
-        int remain = even_numbers.size() - processedElements;
-        //if only 1 remaining element
-        if (remain == 1) {
-            BigInteger tmp = even_numbers.get(processedElements);
-            difference = difference.subtract(tmp);
-            System.out.println("Only one element left");
-        }
-        //if 2 remaining elements
-        else if (remain == 2) {
-            BigInteger a = even_numbers.get(processedElements);
-            BigInteger b = even_numbers.get(processedElements + 1);
-            BigInteger tmp = a.multiply(b);
-            difference = difference.subtract(tmp);
-            System.out.println("Two elements left");
-        }
-        //if 3 remaining elements
-        else if (remain == 3) {
-            BigInteger a = even_numbers.get(processedElements);
-            BigInteger b = even_numbers.get(processedElements + 1);
-            BigInteger c = even_numbers.get(processedElements + 2);
-            BigInteger tmp = a.multiply(c).add(b);
-            difference = difference.subtract(tmp);
-            System.out.println("Three elements left");
-        }
-        System.out.println(difference);
-        return difference;
+        g2.setPaint(gp);
+        g2.fillRoundRect(0, 0, w, h, 15, 15);
+
+        g2.dispose();
+        super.paintComponent(g);
+    }
+}
+
+class GradientPanel extends JPanel {
+    private final Color color1;
+    private final Color color2;
+
+    public GradientPanel(Color c1, Color c2) {
+        this.color1 = c1;
+        this.color2 = c2;
+    }
+
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        int w = getWidth();
+        int h = getHeight();
+        GradientPaint gp = new GradientPaint(0, 0, color1, 0, h, color2);
+        g2.setPaint(gp);
+        g2.fillRect(0, 0, w, h);
     }
 }
 
 class MainGUI extends JFrame {
     private final JTextArea outputArea;
-    private final JButton startButton;
+    private final GradientButton startButton;
     private final JLabel statusLabel;
+    private Timer pulseTimer;
+    private long startTime;
 
     public MainGUI() {
-        setTitle("NumberMath - Variant 9 - Hamuev Oleg");
-        setSize(900, 700);
+        setTitle("NumberMath Calculator - Variant 9");
+        setSize(1000, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        // #002060
-        Color primaryColor = new Color(0, 32, 96);
-        mainPanel.setBackground(primaryColor);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        Color darkBlue = new Color(13, 27, 62);
+        Color mediumBlue = new Color(27, 38, 79);
+        Color accentBlue = new Color(65, 105, 225);
+
+        GradientPanel mainPanel = new GradientPanel(darkBlue, mediumBlue);
+        mainPanel.setLayout(new BorderLayout(15, 15));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JPanel headerPanel = new JPanel();
-        headerPanel.setBackground(primaryColor);
-        JLabel titleLabel = new JLabel("NumberMath Calculator - Variant 9");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        headerPanel.setOpaque(false);
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+
+        JLabel titleLabel = new JLabel("NumberMath Calculator");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
         titleLabel.setForeground(Color.WHITE);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel subtitleLabel = new JLabel("Variant 9 - Hamuev Oleg");
+        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        subtitleLabel.setForeground(new Color(180, 200, 255));
+        subtitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        headerPanel.add(Box.createVerticalStrut(10));
         headerPanel.add(titleLabel);
+        headerPanel.add(Box.createVerticalStrut(5));
+        headerPanel.add(subtitleLabel);
+        headerPanel.add(Box.createVerticalStrut(15));
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        buttonPanel.setBackground(primaryColor);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15));
+        buttonPanel.setOpaque(false);
 
-        startButton = new JButton("Start Calculation");
-        startButton.setFont(new Font("Arial", Font.BOLD, 16));
-        startButton.setBackground(new Color(70, 130, 180));
-        startButton.setForeground(Color.WHITE);
-        startButton.setFocusPainted(false);
-        startButton.setBorderPainted(false);
-        startButton.setPreferredSize(new Dimension(200, 45));
-        startButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        startButton = new GradientButton("Start Calculation",
+                new Color(34, 193, 195), new Color(45, 253, 139));
+        startButton.setPreferredSize(new Dimension(220, 50));
 
-        JButton clearButton = new JButton("Clear Output");
-        clearButton.setFont(new Font("Arial", Font.BOLD, 16));
-        clearButton.setBackground(new Color(220, 20, 60));
-        clearButton.setForeground(Color.WHITE);
-        clearButton.setFocusPainted(false);
-        clearButton.setBorderPainted(false);
-        clearButton.setPreferredSize(new Dimension(200, 45));
-        clearButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        GradientButton clearButton = new GradientButton("Clear Output",
+                new Color(252, 70, 107), new Color(63, 94, 251));
+        clearButton.setPreferredSize(new Dimension(220, 50));
 
         buttonPanel.add(startButton);
         buttonPanel.add(clearButton);
 
+        JPanel outputPanel = new JPanel(new BorderLayout());
+        outputPanel.setOpaque(false);
+        outputPanel.setBorder(BorderFactory.createCompoundBorder(
+                new RoundedBorder(15, new Color(65, 105, 225, 100)),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
 
         outputArea = new JTextArea();
         outputArea.setEditable(false);
-        outputArea.setFont(new Font("Consolas", Font.PLAIN, 12));
-        outputArea.setBackground(new Color(240, 248, 255));
-        outputArea.setBorder(BorderFactory.createLineBorder(primaryColor, 2));
-        JScrollPane scrollPane = new JScrollPane(outputArea);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        outputArea.setFont(new Font("JetBrains Mono", Font.PLAIN, 13));
+        outputArea.setBackground(new Color(20, 30, 48));
+        outputArea.setForeground(new Color(230, 237, 243));
+        outputArea.setCaretColor(accentBlue);
+        outputArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        statusPanel.setBackground(primaryColor);
-        statusLabel = new JLabel("Ready");
-        statusLabel.setFont(new Font("Arial", Font.ITALIC, 14));
-        statusLabel.setForeground(Color.WHITE);
+        JScrollPane scrollPane = new JScrollPane(outputArea);
+        scrollPane.setBorder(null);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        outputPanel.add(scrollPane);
+
+        JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        statusPanel.setOpaque(false);
+        statusLabel = new JLabel("● Ready");
+        statusLabel.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        statusLabel.setForeground(new Color(34, 255, 195));
         statusPanel.add(statusLabel);
 
         mainPanel.add(headerPanel, BorderLayout.NORTH);
         mainPanel.add(buttonPanel, BorderLayout.CENTER);
-        mainPanel.add(scrollPane, BorderLayout.SOUTH);
+        mainPanel.add(outputPanel, BorderLayout.SOUTH);
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.setBackground(primaryColor);
-        bottomPanel.add(statusPanel, BorderLayout.SOUTH);
+        bottomPanel.setOpaque(false);
+        bottomPanel.add(statusPanel, BorderLayout.CENTER);
 
         add(mainPanel, BorderLayout.NORTH);
-        add(scrollPane, BorderLayout.CENTER);
+        add(outputPanel, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
 
         startButton.addActionListener(e -> startCalculation());
         clearButton.addActionListener(e -> {
             outputArea.setText("");
-            statusLabel.setText("Output cleared");
+            statusLabel.setText("● Output cleared");
+            statusLabel.setForeground(new Color(255, 200, 87));
         });
     }
 
     private void startCalculation() {
         startButton.setEnabled(false);
         statusLabel.setText("Calculating...");
+        statusLabel.setForeground(new Color(255, 165, 0));
         outputArea.setText("");
 
+        pulseTimer = new Timer(500, e -> {
+            String text = statusLabel.getText();
+            if (text.endsWith("...")) {
+                statusLabel.setText("⚙ Calculating");
+            } else {
+                statusLabel.setText(text + ".");
+            }
+        });
+        pulseTimer.start();
+
         new Thread(() -> {
+            long startTime = System.currentTimeMillis();
             try {
                 ArrayList<BigInteger> arrayA = generateRandomArray();
                 ArrayList<BigInteger> arrayB = generateRandomArray();
 
-                NumberMath math = new NumberMath(arrayA, arrayB, outputArea);
+                NumberMath mathA = new NumberMath(arrayA, arrayB, outputArea, "Thread ONE");
+                NumberMath mathB = new NumberMath(arrayA, arrayB, outputArea, "Thread TWO");
 
                 final BigInteger[] results = new BigInteger[4];
 
-                outputArea.append("=====================HAMUEV OLEG S-T-A-R-T=====================\n");
-                outputArea.append("Variant 9 - Hamuev Oleg - START\n\n");
+                outputArea.append("║HAMUEV OLEG - CALCULATION START║\n");
                 outputArea.append("Array A: " + arrayA + "\n\n");
                 outputArea.append("Array B: " + arrayB + "\n\n");
+                outputArea.append("Processing...\n\n");
 
                 System.out.println("=====================HAMUEV OLEG S-T-A-R-T=====================");
                 System.out.println("Variant 9 - Hamuev Oleg - START\n");
@@ -355,23 +333,23 @@ class MainGUI extends JFrame {
                 System.out.println("Array B: " + arrayB + "\n");
 
                 Runnable taskA = () -> {
-                    results[0] = math.array_a_sum_of_pair_products();
-                    math.log("Thread for Array A finished calculation - PART - 1.");
+                    results[0] = mathA.array_a_sum_of_pair_products();
+                    mathA.log("Thread for Array A finished calculation - PART - 1.");
                 };
 
                 Runnable taskB = () -> {
-                    results[1] = math.array_b_sum_of_pair_products();
-                    math.log("Thread for Array B finished calculation - - PART - 1.");
+                    results[1] = mathB.array_b_sum_of_pair_products();
+                    mathB.log("Thread for Array B finished calculation - PART - 1.");
                 };
 
                 Runnable taskC = () -> {
-                    results[3] = math.array_a_difference_of_pair_products();
-                    math.log("Thread for Array A finished calculation - PART - 2.");
+                    results[3] = mathA.array_a_difference_of_pair_products();
+                    mathA.log("Thread for Array A finished calculation - PART - 2.");
                 };
 
                 Runnable taskD = () -> {
-                    results[2] = math.array_b_difference_of_pair_products();
-                    math.log("Thread for Array B finished calculation - PART - 2.");
+                    results[2] = mathB.array_b_difference_of_pair_products();
+                    mathB.log("Thread for Array B finished calculation - PART - 2.");
                 };
 
                 Thread threadA = new Thread(taskA);
@@ -396,34 +374,43 @@ class MainGUI extends JFrame {
                 BigInteger difference = sumA.subtract(sumB);
                 BigInteger sum = diffC.add(diffD);
 
-                outputArea.append("\n=== RESULTS ===\n");
+                outputArea.append("║RESULTS║\n");
                 outputArea.append("Sum of pair products in A: " + sumA + "\n");
                 outputArea.append("Sum of pair products in B: " + sumB + "\n");
-                outputArea.append("Difference(PART-1): " + difference + "\n");
+                outputArea.append("Difference (PART-1): " + difference + "\n\n");
                 outputArea.append("Difference of pair products in A: " + diffC + "\n");
                 outputArea.append("Difference of pair products in B: " + diffD + "\n");
-                outputArea.append("Sum(PART-2): " + sum + "\n");
-                outputArea.append("\nVariant 9 - Hamuev Oleg - END\n");
-                outputArea.append("=====================HAMUEV OLEG E-N-D=====================\n");
+                outputArea.append("Sum (PART-2): " + sum + "\n\n");
+                outputArea.append("║HAMUEV OLEG - CALCULATION END║\n");
 
                 System.out.println("\n=== RESULTS ===\n");
                 System.out.println("Sum of pair products in A: " + sumA + "\n");
                 System.out.println("Sum of pair products in B: " + sumB + "\n");
                 System.out.println("Difference(PART-1): " + difference + "\n");
                 System.out.println("Sum(PART-2): " + sum + "\n");
+                long endTime = System.currentTimeMillis();
+                long executionTime = endTime - startTime;
+                outputArea.append("║EXECUTION STATISTICS║\n");
+                outputArea.append("Total execution time: " + executionTime + " ms\n");
+                System.out.println("\n=== EXECUTION STATISTICS ===\n");
+                System.out.println("Total execution time: " + executionTime + " ms\n");
                 System.out.println("\nVariant 9 - Hamuev Oleg - END\n");
                 System.out.println("=====================HAMUEV OLEG E-N-D=====================\n");
 
                 SwingUtilities.invokeLater(() -> {
+                    pulseTimer.stop();
                     statusLabel.setText("Calculation completed!");
+                    statusLabel.setForeground(new Color(34, 255, 195));
                     startButton.setEnabled(true);
                 });
 
             } catch (Exception ex) {
                 SwingUtilities.invokeLater(() -> {
+                    pulseTimer.stop();
                     outputArea.append("\nERROR: " + ex.getMessage() + "\n");
                     System.out.println("\nERROR: " + ex.getMessage());
-                    statusLabel.setText("Error occurred");
+                    statusLabel.setText("✗ Error occurred");
+                    statusLabel.setForeground(new Color(255, 70, 107));
                     startButton.setEnabled(true);
                 });
             }
@@ -433,16 +420,48 @@ class MainGUI extends JFrame {
     private ArrayList<BigInteger> generateRandomArray() {
         Random rand = new Random();
         ArrayList<BigInteger> result = new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
-            result.add(BigInteger.valueOf(rand.nextInt(10)));
+        for (int i = 0; i < 25; i++) {
+            result.add(BigInteger.valueOf(rand.nextInt(101)));
         }
         return result;
     }
 
-    public static void main(String[] args) {
+     static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         SwingUtilities.invokeLater(() -> {
             MainGUI gui = new MainGUI();
             gui.setVisible(true);
         });
+    }
+}
+
+class RoundedBorder implements Border {
+    private final int radius;
+    private final Color color;
+
+    RoundedBorder(int radius, Color color) {
+        this.radius = radius;
+        this.color = color;
+    }
+
+    public Insets getBorderInsets(Component c) {
+        return new Insets(this.radius+1, this.radius+1, this.radius+2, this.radius);
+    }
+
+    public boolean isBorderOpaque() {
+        return false;
+    }
+
+    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(color);
+        g2.setStroke(new BasicStroke(2));
+        g2.drawRoundRect(x, y, width-1, height-1, radius, radius);
     }
 }
