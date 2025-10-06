@@ -23,7 +23,7 @@ class NumberMath {
     }
 
     void log(String message) {
-        System.out.println(message); // Вывод в консоль
+        System.out.println(message);
         SwingUtilities.invokeLater(() -> {
             outputArea.append(message + "\n");
             outputArea.setCaretPosition(outputArea.getDocument().getLength());
@@ -31,144 +31,219 @@ class NumberMath {
     }
 
     BigInteger array_a_sum_of_pair_products() {
-        ArrayList<BigInteger> evenNumbers = new ArrayList<>();
+        ArrayList<BigInteger> even_numbers = new ArrayList<>();
         for (int i = 0; i < a.size(); i++) {
             if (a.get(i).mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
-                evenNumbers.add(a.get(i));
+                even_numbers.add(a.get(i));
             }
-        }
-
-        if (evenNumbers.size() % 2 != 0) {
-            log("WARNING: Array A has odd number of even elements. Removing last element: " + evenNumbers.getLast());
-            evenNumbers.removeLast();
         }
 
         BigInteger sum = BigInteger.ZERO;
         int pairCounter = 0;
-        int halfSize = evenNumbers.size() / 2;
+        int processedElements = 0;
+        for (int i = 0; i < even_numbers.size(); i += 4) {
 
-        for (int i = 0; i < halfSize; i++) {
-            BigInteger num1 = evenNumbers.get(i);
-            BigInteger num2 = evenNumbers.get(i + halfSize);
-
-            String groupName = (pairCounter % 2 == 0) ? "ONE" : "TWO";
-            BigInteger pairSum = num1.add(num2);
-            log(String.format("A-%s %s %s %s %d %d", groupName, num1, num2, pairSum, i, i + halfSize));
-
-            BigInteger p = num1.multiply(num2);
-            sum = sum.add(p);
-            pairCounter++;
+            if (i + 3 < even_numbers.size()) {
+                BigInteger tmp1 = even_numbers.get(i);
+                BigInteger tmp2 = even_numbers.get(i + 1);
+                BigInteger tmp3 = even_numbers.get(i + 2);
+                BigInteger tmp4 = even_numbers.get(i + 3);
+                BigInteger tmp = tmp1.multiply(tmp3).add(tmp2.multiply(tmp4));
+                sum = sum.add(tmp);
+                pairCounter++;
+                processedElements = i + 4;
+                System.out.println("Full pair, Pair: "+pairCounter);
+            }
         }
+
+        int remain = even_numbers.size() - processedElements;
+        //if only 1 remaining element
+        if (remain == 1) {
+            BigInteger tmp = even_numbers.get(processedElements);
+            sum = sum.add(tmp);
+            System.out.println("Only one element left");
+        }
+        //if 2 remaining elements
+        else if (remain == 2) {
+            BigInteger a = even_numbers.get(processedElements);
+            BigInteger b = even_numbers.get(processedElements + 1);
+            BigInteger tmp = a.multiply(b);
+            sum = sum.add(tmp);
+            System.out.println("Two elements left");
+        }
+        //if 3 remaining elements
+        else if (remain == 3) {
+            BigInteger a = even_numbers.get(processedElements);
+            BigInteger b = even_numbers.get(processedElements + 1);
+            BigInteger c = even_numbers.get(processedElements + 2);
+            BigInteger tmp = a.multiply(c).add(b);
+            sum = sum.add(tmp);
+            System.out.println("Three elements left");
+        }
+        System.out.println(sum);
         return sum;
     }
 
     BigInteger array_b_sum_of_pair_products() {
-        ArrayList<BigInteger> evenNumbers = new ArrayList<>();
+        ArrayList<BigInteger> even_numbers = new ArrayList<>();
         for (int i = 0; i < b.size(); i++) {
             if (b.get(i).mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
-                evenNumbers.add(b.get(i));
+                even_numbers.add(b.get(i));
             }
-        }
-
-        if (evenNumbers.size() % 2 != 0) {
-            log("WARNING: Array B has odd number of even elements. Removing last element: " + evenNumbers.getLast());
-            evenNumbers.removeLast();
         }
 
         BigInteger sum = BigInteger.ZERO;
         int pairCounter = 0;
-        int halfSize = evenNumbers.size() / 2;
+        int processedElements = 0;
+        for (int i = 0; i < even_numbers.size(); i += 4) {
 
-        for (int i = 0; i < halfSize; i++) {
-            BigInteger num1 = evenNumbers.get(i);
-            BigInteger num2 = evenNumbers.get(i + halfSize);
-
-            String groupName = (pairCounter % 2 == 0) ? "ONE" : "TWO";
-            BigInteger pairSum = num1.add(num2);
-            log(String.format("B-%s %s %s %s %d %d", groupName, num1, num2, pairSum, i, i + halfSize));
-
-            BigInteger p = num1.multiply(num2);
-            sum = sum.add(p);
-            pairCounter++;
+            if (i + 3 < even_numbers.size()) {
+                BigInteger tmp1 = even_numbers.get(i);
+                BigInteger tmp2 = even_numbers.get(i + 1);
+                BigInteger tmp3 = even_numbers.get(i + 2);
+                BigInteger tmp4 = even_numbers.get(i + 3);
+                BigInteger tmp = tmp1.multiply(tmp3).add(tmp2.multiply(tmp4));
+                sum = sum.add(tmp);
+                pairCounter++;
+                processedElements = i + 4;
+                System.out.println("Full pair, Pair: "+pairCounter);
+            }
         }
+
+        int remain = even_numbers.size() - processedElements;
+        //if only 1 remaining element
+        if (remain == 1) {
+            BigInteger tmp = even_numbers.get(processedElements);
+            sum = sum.add(tmp);
+            System.out.println("Only one element left");
+        }
+        //if 2 remaining elements
+        else if (remain == 2) {
+            BigInteger a = even_numbers.get(processedElements);
+            BigInteger b = even_numbers.get(processedElements + 1);
+            BigInteger tmp = a.multiply(b);
+            sum = sum.add(tmp);
+            System.out.println("Two elements left");
+        }
+        //if 3 remaining elements
+        else if (remain == 3) {
+            BigInteger a = even_numbers.get(processedElements);
+            BigInteger b = even_numbers.get(processedElements + 1);
+            BigInteger c = even_numbers.get(processedElements + 2);
+            BigInteger tmp = a.multiply(c).add(b);
+            sum = sum.add(tmp);
+            System.out.println("Three elements left");
+        }
+        System.out.println(sum);
         return sum;
     }
 
     BigInteger array_a_difference_of_pair_products() {
-        ArrayList<BigInteger> evenNumbers = new ArrayList<>();
+        ArrayList<BigInteger> even_numbers = new ArrayList<>();
         for (int i = 0; i < a.size(); i++) {
             if (a.get(i).mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
-                evenNumbers.add(a.get(i));
+                even_numbers.add(a.get(i));
             }
         }
 
-        if (evenNumbers.size() % 2 != 0) {
-            log("WARNING: Array A has odd number of even elements. Removing last element: " + evenNumbers.getLast());
-            evenNumbers.removeLast();
-        }
-
-        BigInteger result = BigInteger.ZERO;
+        BigInteger sum = BigInteger.ZERO;
         int pairCounter = 0;
-        int halfSize = evenNumbers.size() / 2;
+        int processedElements = 0;
+        for (int i = 0; i < even_numbers.size(); i += 4) {
 
-        for (int i = 0; i < halfSize; i++) {
-            BigInteger num1 = evenNumbers.get(i);
-            BigInteger num2 = evenNumbers.get(i + halfSize);
-
-
-            String groupName = (pairCounter % 2 == 0) ? "ONE" : "TWO";
-            BigInteger pairDifference = num1.subtract(num2);
-            log(String.format("A-%s %s %s %s %d %d", groupName, num1, num2, pairDifference, i, i + halfSize));
-
-            BigInteger p = num1.multiply(num2);
-            result = result.subtract(p);
-            pairCounter++;
+            if (i + 3 < even_numbers.size()) {
+                BigInteger tmp1 = even_numbers.get(i);
+                BigInteger tmp2 = even_numbers.get(i + 1);
+                BigInteger tmp3 = even_numbers.get(i + 2);
+                BigInteger tmp4 = even_numbers.get(i + 3);
+                BigInteger tmp = tmp1.multiply(tmp3).add(tmp2.multiply(tmp4));
+                sum = sum.subtract(tmp);
+                pairCounter++;
+                processedElements = i + 4;
+                System.out.println("Full pair, Pair: "+pairCounter);
+            }
         }
-        return result;
+
+        int remain = even_numbers.size() - processedElements;
+        //if only 1 remaining element
+        if (remain == 1) {
+            BigInteger tmp = even_numbers.get(processedElements);
+            sum = sum.subtract(tmp);
+            System.out.println("Only one element left");
+        }
+        //if 2 remaining elements
+        else if (remain == 2) {
+            BigInteger a = even_numbers.get(processedElements);
+            BigInteger b = even_numbers.get(processedElements + 1);
+            BigInteger tmp = a.multiply(b);
+            sum = sum.add(tmp);
+            System.out.println("Two elements left");
+        }
+        //if 3 remaining elements
+        else if (remain == 3) {
+            BigInteger a = even_numbers.get(processedElements);
+            BigInteger b = even_numbers.get(processedElements + 1);
+            BigInteger c = even_numbers.get(processedElements + 2);
+            BigInteger tmp = a.multiply(c).add(b);
+            sum = sum.add(tmp);
+            System.out.println("Three elements left");
+        }
+        System.out.println(sum);
+        return sum;
     }
 
     BigInteger array_b_difference_of_pair_products() {
-        ArrayList<BigInteger> evenNumbers = new ArrayList<>();
+        ArrayList<BigInteger> even_numbers = new ArrayList<>();
         for (int i = 0; i < b.size(); i++) {
             if (b.get(i).mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
-                evenNumbers.add(b.get(i));
+                even_numbers.add(b.get(i));
             }
         }
 
-        if (evenNumbers.size() % 2 != 0) {
-            log("WARNING: Array B has odd number of even elements. Removing last element: " + evenNumbers.getLast());
-            evenNumbers.removeLast();
-        }
-
-        BigInteger result = BigInteger.ZERO;
+        BigInteger difference = BigInteger.ZERO;
         int pairCounter = 0;
-        int halfSize = evenNumbers.size() / 2;
+        int processedElements = 0;
+        for (int i = 0; i < even_numbers.size(); i += 4) {
 
-        for (int i = 0; i < halfSize; i++) {
-            BigInteger num1 = evenNumbers.get(i);
-            BigInteger num2 = evenNumbers.get(i + halfSize);
-
-            String groupName = (pairCounter % 2 == 0) ? "ONE" : "TWO";
-            BigInteger pairDifference = num1.subtract(num2);
-            log(String.format("B-%s %s %s %s %d %d", groupName, num1, num2, pairDifference, i, i + halfSize));
-
-            BigInteger p = num1.multiply(num2);
-            result = result.subtract(p);
-            pairCounter++;
+            if (i + 3 < even_numbers.size()) {
+                BigInteger tmp1 = even_numbers.get(i);
+                BigInteger tmp2 = even_numbers.get(i + 1);
+                BigInteger tmp3 = even_numbers.get(i + 2);
+                BigInteger tmp4 = even_numbers.get(i + 3);
+                BigInteger tmp = tmp1.multiply(tmp3).add(tmp2.multiply(tmp4));
+                difference = difference.subtract(tmp);
+                pairCounter++;
+                processedElements = i + 4;
+                System.out.println("Full pair, Pair: "+pairCounter);
+            }
         }
-        return result;
-    }
 
-    BigInteger difference_of_array_a_and_b() {
-        BigInteger sum_a = array_a_sum_of_pair_products();
-        BigInteger sum_b = array_b_sum_of_pair_products();
-        return sum_a.subtract(sum_b);
-    }
-
-    BigInteger sum_of_array_a_and_b() {
-        BigInteger sum_a = array_a_difference_of_pair_products();
-        BigInteger sum_b = array_b_difference_of_pair_products();
-        return sum_a.add(sum_b);
+        int remain = even_numbers.size() - processedElements;
+        //if only 1 remaining element
+        if (remain == 1) {
+            BigInteger tmp = even_numbers.get(processedElements);
+            difference = difference.subtract(tmp);
+            System.out.println("Only one element left");
+        }
+        //if 2 remaining elements
+        else if (remain == 2) {
+            BigInteger a = even_numbers.get(processedElements);
+            BigInteger b = even_numbers.get(processedElements + 1);
+            BigInteger tmp = a.multiply(b);
+            difference = difference.subtract(tmp);
+            System.out.println("Two elements left");
+        }
+        //if 3 remaining elements
+        else if (remain == 3) {
+            BigInteger a = even_numbers.get(processedElements);
+            BigInteger b = even_numbers.get(processedElements + 1);
+            BigInteger c = even_numbers.get(processedElements + 2);
+            BigInteger tmp = a.multiply(c).add(b);
+            difference = difference.subtract(tmp);
+            System.out.println("Three elements left");
+        }
+        System.out.println(difference);
+        return difference;
     }
 }
 
@@ -267,7 +342,7 @@ class MainGUI extends JFrame {
 
                 NumberMath math = new NumberMath(arrayA, arrayB, outputArea);
 
-                final BigInteger[] results = new BigInteger[2];
+                final BigInteger[] results = new BigInteger[4];
 
                 outputArea.append("=====================HAMUEV OLEG S-T-A-R-T=====================\n");
                 outputArea.append("Variant 9 - Hamuev Oleg - START\n\n");
@@ -281,44 +356,63 @@ class MainGUI extends JFrame {
 
                 Runnable taskA = () -> {
                     results[0] = math.array_a_sum_of_pair_products();
-                    math.log("Thread for Array A finished calculation.");
+                    math.log("Thread for Array A finished calculation - PART - 1.");
                 };
 
                 Runnable taskB = () -> {
                     results[1] = math.array_b_sum_of_pair_products();
-                    math.log("Thread for Array B finished calculation.");
+                    math.log("Thread for Array B finished calculation - - PART - 1.");
+                };
+
+                Runnable taskC = () -> {
+                    results[3] = math.array_a_difference_of_pair_products();
+                    math.log("Thread for Array A finished calculation - PART - 2.");
+                };
+
+                Runnable taskD = () -> {
+                    results[2] = math.array_b_difference_of_pair_products();
+                    math.log("Thread for Array B finished calculation - PART - 2.");
                 };
 
                 Thread threadA = new Thread(taskA);
                 Thread threadB = new Thread(taskB);
+                Thread threadC = new Thread(taskC);
+                Thread threadD = new Thread(taskD);
 
                 threadA.start();
                 threadB.start();
+                threadC.start();
+                threadD.start();
 
                 threadA.join();
                 threadB.join();
+                threadC.join();
+                threadD.join();
 
                 BigInteger sumA = results[0];
                 BigInteger sumB = results[1];
-                BigInteger difference = math.difference_of_array_a_and_b();
-                BigInteger sum = math.sum_of_array_a_and_b();
+                BigInteger diffC = results[2];
+                BigInteger diffD = results[3];
+                BigInteger difference = sumA.subtract(sumB);
+                BigInteger sum = diffC.add(diffD);
 
                 outputArea.append("\n=== RESULTS ===\n");
                 outputArea.append("Sum of pair products in A: " + sumA + "\n");
                 outputArea.append("Sum of pair products in B: " + sumB + "\n");
                 outputArea.append("Difference(PART-1): " + difference + "\n");
+                outputArea.append("Difference of pair products in A: " + diffC + "\n");
+                outputArea.append("Difference of pair products in B: " + diffD + "\n");
                 outputArea.append("Sum(PART-2): " + sum + "\n");
                 outputArea.append("\nVariant 9 - Hamuev Oleg - END\n");
                 outputArea.append("=====================HAMUEV OLEG E-N-D=====================\n");
 
-
-                System.out.println("\n=== RESULTS ===");
-                System.out.println("Sum of pair products in A: " + sumA);
-                System.out.println("Sum of pair products in B: " + sumB);
-                System.out.println("Difference(PART-1): " + difference);
-                System.out.println("Sum(PART-2): " + sum);
-                System.out.println("\nVariant 9 - Hamuev Oleg - END");
-                System.out.println("=====================HAMUEV OLEG E-N-D=====================");
+                System.out.println("\n=== RESULTS ===\n");
+                System.out.println("Sum of pair products in A: " + sumA + "\n");
+                System.out.println("Sum of pair products in B: " + sumB + "\n");
+                System.out.println("Difference(PART-1): " + difference + "\n");
+                System.out.println("Sum(PART-2): " + sum + "\n");
+                System.out.println("\nVariant 9 - Hamuev Oleg - END\n");
+                System.out.println("=====================HAMUEV OLEG E-N-D=====================\n");
 
                 SwingUtilities.invokeLater(() -> {
                     statusLabel.setText("Calculation completed!");
@@ -339,8 +433,8 @@ class MainGUI extends JFrame {
     private ArrayList<BigInteger> generateRandomArray() {
         Random rand = new Random();
         ArrayList<BigInteger> result = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
-            result.add(BigInteger.valueOf(rand.nextInt(101)));
+        for (int i = 0; i < 4; i++) {
+            result.add(BigInteger.valueOf(rand.nextInt(10)));
         }
         return result;
     }
