@@ -4,15 +4,9 @@ import java.util.Random;
 class Th1 implements Runnable {
     private int[] mas;
     private Thread thread;
-    private int from;
-    private int to;
-    private int step;
 
-    public Th1(int[] mas, int from, int to, int step, String name) {
+    public Th1(int[] mas, String name) {
         this.mas = mas;
-        this.from = from;
-        this.to = to;
-        this.step = step;
         this.thread = new Thread(this, name);
     }
 
@@ -24,27 +18,30 @@ class Th1 implements Runnable {
         thread.join();
     }
 
+    @Override
     public void run() {
-        int i = from;
-        while (i != to) {
-            if (i >= 0 && i < mas.length && mas[i] <= 50) {
-                int firstIndex = i;
-                i += step;
-                while (true) {
-                    if (i < 0 || i >= mas.length) {
-                        break;
-                    }
-                    if (mas[i] <= 50) {
-                        int secondIndex = i;
-                        int sumOfIndices = firstIndex + secondIndex;
-                        System.out.println(Thread.currentThread().getName() + " " + firstIndex + " " + secondIndex + " " + sumOfIndices + " " + mas[firstIndex] + " " + mas[secondIndex]);
-                        break;
-                    }
-                    i += step;
-                }
+        System.out.println(Thread.currentThread().getName() + " начал работу");
+
+        int totalSum = 0;
+
+
+        for (int i = 1; i < mas.length - 2; i += 4) {
+            if (i + 2 < mas.length) {
+                int pos1 = i;
+                int pos2 = i + 2;
+                int product = mas[pos1] * mas[pos2];
+                totalSum += product;
+
+                System.out.println(Thread.currentThread().getName() +
+                        " | Позиции: [" + pos1 + ", " + pos2 + "]" +
+                        " | Числа: " + mas[pos1] + " * " + mas[pos2] +
+                        " = " + product +
+                        " | Текущая сумма: " + totalSum);
             }
-            i += step;
         }
+
+        System.out.println(Thread.currentThread().getName() +
+                " завершил работу | ИТОГОВАЯ СУММА: " + totalSum);
     }
 }
 
@@ -52,15 +49,9 @@ class Th1 implements Runnable {
 class Th2 implements Runnable {
     private int[] mas;
     private Thread thread;
-    private int from;
-    private int to;
-    private int step;
 
-    public Th2(int[] mas, int from, int to, int step, String name) {
+    public Th2(int[] mas, String name) {
         this.mas = mas;
-        this.from = from;
-        this.to = to;
-        this.step = step;
         this.thread = new Thread(this, name);
     }
 
@@ -72,46 +63,53 @@ class Th2 implements Runnable {
         thread.join();
     }
 
+    @Override
     public void run() {
-        int i = from;
-        while (i != to) {
-            if (i >= 0 && i < mas.length && mas[i] <= 50) {
-                int firstIndex = i;
-                i += step;
-                while (true) {
-                    if (i < 0 || i >= mas.length) {
-                        break;
-                    }
-                    if (mas[i] <= 50) {
-                        int secondIndex = i;
-                        int sumOfIndices = firstIndex + secondIndex;
-                        System.out.println(Thread.currentThread().getName() + " " + firstIndex + " " + secondIndex + " " + sumOfIndices + " " + mas[firstIndex] + " " + mas[secondIndex]);
-                        break;
-                    }
-                    i += step;
-                }
+        System.out.println(Thread.currentThread().getName() + " начал работу");
+
+        int totalSum = 0;
+
+
+        int lastOdd = (mas.length % 2 == 0) ? mas.length - 1 : mas.length - 2;
+
+
+        for (int i = lastOdd; i >= 3; i -= 4) {
+            if (i - 2 >= 1) {
+                int pos1 = i;
+                int pos2 = i - 2;
+                int product = mas[pos1] * mas[pos2];
+                totalSum += product;
+
+                System.out.println(Thread.currentThread().getName() +
+                        " | Позиции: [" + pos1 + ", " + pos2 + "]" +
+                        " | Числа: " + mas[pos1] + " * " + mas[pos2] +
+                        " = " + product +
+                        " | Текущая сумма: " + totalSum);
             }
-            i += step;
         }
+
+        System.out.println(Thread.currentThread().getName() +
+                " завершил работу | ИТОГОВАЯ СУММА: " + totalSum);
     }
 }
 
-
 public class Main {
     public static void main(String[] args) {
-
-        int[] mas = new int[101];
+        // Генерируем массив
+        int[] mas = new int[100];
         Random rand = new Random();
-        System.out.println("Результат выполнения:");
+
+        System.out.println("Сгенерированный массив:");
         for (int i = 0; i < 100; i++) {
-            mas[i] = rand.nextInt(99); // 0..98
+            mas[i] = rand.nextInt(100) + 1; // числа от 1 до 100
             System.out.print(mas[i] + " ");
+            if ((i + 1) % 10 == 0) System.out.println();
         }
-        System.out.println(" ");
+        System.out.println("\n");
 
 
-        Th1 th1 = new Th1(mas, 0, 99, 1, "Один");
-        Th2 th2 = new Th2(mas, 99, 0, -1, "Два");
+        Th1 th1 = new Th1(mas, "Поток_1");
+        Th2 th2 = new Th2(mas, "Поток_2");
 
         th1.start();
         th2.start();
@@ -124,8 +122,10 @@ public class Main {
             e.printStackTrace();
         }
 
+        System.out.println("\n=== Все потоки завершены ===\n");
 
-        String studentInfo = "Лабораторную работу выполнили: Хамуев Олег (Kylian Mbappe), Дрига Даниил (Igor Akinfeev)";
+        // Вывод информации о студентах с задержкой
+        String studentInfo = "Лабораторную работу выполнили: Хамуев Олег, Дрига Даниил";
         for (char c : studentInfo.toCharArray()) {
             System.out.print(c);
             try {
