@@ -2,7 +2,7 @@ import java.util.Random;
 import javax.swing.*;
 import java.awt.*;
 
-// Первый поток - суммирует произведения чисел на нечетных позициях с начала
+
 class Th1 implements Runnable {
     private int[] mas;
     private Thread thread;
@@ -58,7 +58,7 @@ class Th1 implements Runnable {
     }
 }
 
-// Второй поток - суммирует произведения чисел на нечетных позициях с конца
+
 class Th2 implements Runnable {
     private int[] mas;
     private Thread thread;
@@ -127,7 +127,7 @@ public class Main extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
-        // Верхняя панель с заголовком
+        
         JPanel topPanel = new JPanel();
         topPanel.setBackground(new Color(70, 130, 180));
         JLabel titleLabel = new JLabel("Многопоточная обработка массива");
@@ -136,7 +136,7 @@ public class Main extends JFrame {
         topPanel.add(titleLabel);
         add(topPanel, BorderLayout.NORTH);
 
-        // Панель для массива
+        
         JPanel arrayPanel = new JPanel(new BorderLayout());
         arrayPanel.setBorder(BorderFactory.createTitledBorder("Сгенерированный массив"));
         arrayArea = new JTextArea(6, 50);
@@ -147,7 +147,7 @@ public class Main extends JFrame {
         JScrollPane arrayScroll = new JScrollPane(arrayArea);
         arrayPanel.add(arrayScroll, BorderLayout.CENTER);
 
-        // Панель для вывода результатов
+        
         JPanel outputPanel = new JPanel(new BorderLayout());
         outputPanel.setBorder(BorderFactory.createTitledBorder("Результаты работы потоков"));
         outputArea = new JTextArea(20, 50);
@@ -156,14 +156,14 @@ public class Main extends JFrame {
         JScrollPane outputScroll = new JScrollPane(outputArea);
         outputPanel.add(outputScroll, BorderLayout.CENTER);
 
-        // Центральная панель
+        
         JPanel centerPanel = new JPanel(new GridLayout(2, 1, 10, 10));
         centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         centerPanel.add(arrayPanel);
         centerPanel.add(outputPanel);
         add(centerPanel, BorderLayout.CENTER);
 
-        // Нижняя панель с кнопкой
+        
         JPanel bottomPanel = new JPanel();
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         startButton = new JButton("Запустить потоки");
