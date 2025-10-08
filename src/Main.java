@@ -1,7 +1,6 @@
 import java.util.Random;
 
-// Класс для потока Th1: обходит массив в прямом направлении и выводит пары индексов,
-// на которых значения <= 50, в формате: "Один i j i+j mas[i] mas[j]"
+
 class Th1 implements Runnable {
     private int[] mas;
     private Thread thread;
@@ -49,8 +48,7 @@ class Th1 implements Runnable {
     }
 }
 
-// Класс для потока Th2: обходит массив в обратном направлении и выводит пары индексов,
-// на которых значения <= 50, в формате: "Два i j i+j mas[i] mas[j]"
+
 class Th2 implements Runnable {
     private int[] mas;
     private Thread thread;
@@ -98,10 +96,10 @@ class Th2 implements Runnable {
     }
 }
 
-// Главный класс
+
 public class Main {
     public static void main(String[] args) {
-        // 1. Генерация массива из 100 случайных чисел от 0 до 99 (как в примере)
+
         int[] mas = new int[101];
         Random rand = new Random();
         System.out.println("Результат выполнения:");
@@ -111,14 +109,14 @@ public class Main {
         }
         System.out.println(" ");
 
-        // 2. Создание и запуск потоков, имена строго "Один" и "Два"
+
         Th1 th1 = new Th1(mas, 0, 99, 1, "Один");
         Th2 th2 = new Th2(mas, 99, 0, -1, "Два");
 
         th1.start();
         th2.start();
 
-        // 3. Ожидание завершения потоков
+
         try {
             th1.join();
             th2.join();
@@ -126,7 +124,7 @@ public class Main {
             e.printStackTrace();
         }
 
-        // 4. Информация о студентах (как было)
+
         String studentInfo = "Лабораторную работу выполнили: Хамуев Олег (Kylian Mbappe), Дрига Даниил (Igor Akinfeev)";
         for (char c : studentInfo.toCharArray()) {
             System.out.print(c);
