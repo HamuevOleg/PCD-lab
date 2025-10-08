@@ -124,7 +124,7 @@ public class Main {
 
         System.out.println("\n=== Все потоки завершены ===\n");
 
-        // Вывод информации о студентах с задержкой
+        
         String studentInfo = "Лабораторную работу выполнили: Хамуев Олег, Дрига Даниил";
         for (char c : studentInfo.toCharArray()) {
             System.out.print(c);
