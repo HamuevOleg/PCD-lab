@@ -2,7 +2,7 @@ import java.util.Random;
 import javax.swing.*;
 import java.awt.*;
 
-
+// Первый поток - суммирует произведения чисел на нечетных позициях с начала
 class Th1 implements Runnable {
     private int[] mas;
     private Thread thread;
@@ -58,7 +58,7 @@ class Th1 implements Runnable {
     }
 }
 
-
+// Второй поток - суммирует произведения чисел на нечетных позициях с конца
 class Th2 implements Runnable {
     private int[] mas;
     private Thread thread;
@@ -204,13 +204,6 @@ public class Main extends JFrame {
             th1.start();
             th2.start();
 
-<<<<<<< HEAD
-        
-        String studentInfo = "Лабораторную работу выполнили: Хамуев Олег, Дрига Даниил";
-        for (char c : studentInfo.toCharArray()) {
-            System.out.print(c);
-=======
->>>>>>> 1054625 (ТЫ ВИДЕЛ МОЕ КПД? (подрихтовал мейн))
             try {
                 th1.join();
                 th2.join();
@@ -219,7 +212,7 @@ public class Main extends JFrame {
             }
 
             SwingUtilities.invokeLater(() -> {
-                outputArea.append("\n=== Все потоки завершены ===\n\n");
+                outputArea.append("\n--- Все потоки завершены ---\n\n");
 
                 String studentInfo = "Лабораторную работу выполнили: Дрига Даниил, Хамуев Олег. В простонародье: мама Италия папа Бразилия";
                 new Thread(() -> {
