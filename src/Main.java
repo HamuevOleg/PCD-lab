@@ -56,7 +56,7 @@ public class Main {
                 Thread Thb = new Custom_thread(g3, "Thb", 3);
                 Thread Thc = new Custom_thread(g3, "Thc", 4);
                 Thread Thd = new Custom_thread(g3, "Thd", 3);
-
+            //test for//
             Thread Th2_g2 = new Custom_thread(g2, "Th2", 3);
             Thread Th3 = new Custom_thread(g2, "Th3", 3);
 
