@@ -36,9 +36,52 @@ class Custom_thread extends Thread{
 
 
 }
+class robertocarlos {
+    public static void run() throws InterruptedException {
+        System.out.println("\n===  Даниил Бразилия (Roberto Carlos number 3 Brazil ===\n");
+
+        ThreadGroup main = new ThreadGroup("main");
+        ThreadGroup g1 = new ThreadGroup(main, "G1");
+        ThreadGroup g3 = new ThreadGroup(g1, "G3");
+        ThreadGroup g2 = new ThreadGroup(g1, "G2");
+
+        // G1 - прямые потоки
+        Thread thA = new Custom_thread(g1, "ThA", 3);
+        Thread th1 = new Custom_thread(g1, "Th1", 3);
+        Thread th2 = new Custom_thread(g1, "Th2", 3);
+
+        // G3 группа (внутри G1)
+        Thread thf = new Custom_thread(g3, "Thf", 3);
+        Thread thb = new Custom_thread(g3, "Thb", 7);
+        Thread thc = new Custom_thread(g3, "Thc", 3);
+        Thread thd = new Custom_thread(g3, "Thd", 3);
+
+        // G2 группа (внутри G1)
+        Thread th8 = new Custom_thread(g2, "Th8", 3);
+        Thread th9 = new Custom_thread(g2, "Th9", 4);
+        Thread th3 = new Custom_thread(g2, "Th3", 3);
+
+        // Запуск всех потоков
+        thA.start(); th1.start(); th2.start();
+        thf.start(); thb.start(); thc.start(); thd.start();
+        th8.start(); th9.start(); th3.start();
+
+        // Ждем завершения
+        thA.join(); th1.join(); th2.join();
+        thf.join(); thb.join(); thc.join(); thd.join();
+        th8.join(); th9.join(); th3.join();
+
+        // Вывод структуры
+        System.out.println("\n=== Thread Group Structure ===");
+        main.list();
+        System.out.println("Total active threads: " + main.activeCount());
+        System.out.println("\n=== Данила Роберто Карлос закончил===\n");
+    }
+}
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
+        System.out.println("=== Олег Хамуев - Джанлуиджи Доннарумма ===\n");
         ThreadGroup main = new ThreadGroup("main");
             ThreadGroup g6 = new ThreadGroup(main, "g6");
             ThreadGroup g2 = new ThreadGroup(main, "g2");
@@ -67,7 +110,9 @@ public class Main {
         main.list();
         System.out.println("Total active threads is " +
         main.activeCount());
-
+        System.out.println("\n=== Доннарумма Закончил ===\n");
+        // Теперь твой вариант
+        robertocarlos.run();
 
     }
 }
