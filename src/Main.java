@@ -1,99 +1,54 @@
-class Interval implements Runnable {
-    int start;
-    int end;
-    boolean flag;
-    Thread threadToWaitFor;
-    String text;
-
-    /**
-     * @param start           Start of the interval.
-     * @param end             End of the interval.
-     * @param flag            true for forward iteration, false for backward iteration.
-     * @param threadToWaitFor The thread to wait for. Pass null if no wait is needed.
-     * @param text            The text to be printed after the task is done.
-     */
-    Interval(int start, int end, boolean flag, Thread threadToWaitFor, String text) {
-        this.start = start;
-        this.end = end;
-        this.flag = flag;
-        this.threadToWaitFor = threadToWaitFor;
-        this.text = text;
-    }
-
-    @Override
-    public void run() {
-        System.out.println("\n[INFO] Thread for '" + text + "' HAS STARTED.");
-        if (flag) {
-            for (int i = start; i <= end; i++) {
-                System.out.print(i + " ");
-            }
-        } else {
-            for (int i = end; i >= start; i--) {
-                System.out.print(i + " ");
-            }
-        }
-        System.out.println("\n[INFO] Thread for '" + text + "' FINISHED loop.");
-
-        while (threadToWaitFor != null && threadToWaitFor.isAlive()) {
-            try {
-                System.out.println("\n[INFO] Thread '" + text + "' IS WAITING for thread '" + threadToWaitFor.getName() + "'...");
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        System.out.print("\n[INFO] Thread '" + text + "' is printing: ");
-        for (char c : text.toCharArray()) {
-            System.out.print(c);
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        System.out.println("\n[INFO] Thread for '" + text + "' HAS FINISHED.");
-    }
-}
-
 public class Main {
-    public static void main(String[] args) throws InterruptedException {
+    static int size = 100;
+    static int[] array = new int[size];
 
-        /* Bro, here u have to implement your code
-            u need to create 2 threads and start them
-            u can read all my comments in the code for
-            understanding how our Interval class works,
-            that's all
-        */
+    public static void main(String[] args) {
+        System.out.println("========== LAB WORK #3 (Runnable Edition) ==========");
+        System.out.println("Thread Synchronization\n");
 
-        Runnable task1 = new Interval(1, 10, true, null, "Name (Task 1)");
-        Runnable task2 = new Interval(100, 110, true, null, "Surname (Task 2)");
-
-        Thread th1 = new Thread(task1, "Th1");
-        Thread th2 = new Thread(task2, "Th2");
-
-        String textFor3 = "Concurrent and Distributed Programming (Task 3)";
-        Runnable task3 = new Interval(222, 999, true, th1, textFor3);
-
-        Thread th3 = new Thread(task3, "Th3");
-
-        String textFor4 = "Group FCIM-CR-233 (Task 4)";
-        Runnable task4 = new Interval(3333, 3999, false, th3, textFor4);
+        System.out.println("Generating array of " + size + " elements:");
+        for (int i = 0; i < size; i++) {
+            array[i] = (int) (Math.random() * 100) + 1;
+            System.out.print(array[i] + " ");
+            if ((i + 1) % 20 == 0) System.out.println();
+        }
+        System.out.println("\n");
 
 
-        Thread th4 = new Thread(task4, "Th4");
+        PairBarrier barrier12 = new PairBarrier();
+        PairBarrier barrier34 = new PairBarrier();
 
-        System.out.println("====== STARTING ALL THREADS ======");
-        th1.start();
-        th2.start();
-        th3.start();
-        th4.start();
+        PrintTexter textPrinter = new PrintTexter(4);
 
-        th1.join();
-        th2.join();
-        th3.join();
-        th4.join();
 
-//        System.out.println("\n====== ALL THREADS FINISHED. Main() is exiting. ======");
+        // --- Daniil Driga Part - Tasks - Var 6  ---
+        Runnable task1 = new Task(array, true, barrier12, textPrinter, "Hamuev | Driga", 2); // true -> fwd
+        Runnable task2 = new Task(array, false, barrier12, textPrinter, "Oleg | Daniil", 0);  // false -> bwd
+
+        // --- Oleg Hamuev Part - Intervals - Var 9  ---
+        Runnable task3 = new Interval(222, 999, true, barrier34, textPrinter, "Concurrent and Distributed Programming", 3);
+        Runnable task4 = new Interval(3333, 9999, false, barrier34, textPrinter, "CR-233", 1);
+
+        Thread thread1 = new Thread(task1, "Thread-Driga  | Hamuev (Th1)");
+        Thread thread2 = new Thread(task2, "Thread-Daniil | Oleg (Th2)");
+        Thread thread3 = new Thread(task3, "Thread-Interval-Fwd (Th3)");
+        Thread thread4 = new Thread(task4, "Thread-Interval-Bwd (Th4)");
+
+        System.out.println("========== STARTING ALL THREADS ==========\n");
+        thread1.start();
+        thread2.start();
+        thread3.start();
+        thread4.start();
+
+        try {
+            thread1.join();
+            thread2.join();
+            thread3.join();
+            thread4.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("\n========== ALL THREADS FINISHED ==========");
     }
 }
