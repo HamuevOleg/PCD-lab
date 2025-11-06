@@ -16,7 +16,6 @@ public class TurnManager {
     }
 
     public synchronized void waitForTurn(int myId) throws InterruptedException {
-        // check for spurious wakeups
         while (currentTurn != myId) {
             wait();
         }

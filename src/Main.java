@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 
-public class Lab3Var2 {
+public class Main {
     public static void main(String[] args) throws InterruptedException {
         RandomArray randGen1 = new RandomArray(100, 101);
         RandomArray randGen2 = new RandomArray(100, 101);
@@ -11,30 +11,31 @@ public class Lab3Var2 {
         ArrayList<Integer> list2 = randGen2.randomise_value();
 
         CountDownLatch latch = new CountDownLatch(4);
-
         CyclicBarrier barrier = new CyclicBarrier(4);
 
+        // Sequence : Th2 -> Th4 -> Th1 -> Th3
         ArrayList<Integer> executionOrder = new ArrayList<>();
         executionOrder.add(2); executionOrder.add(4); executionOrder.add(1); executionOrder.add(3);
 
-        // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        TurnManager calcManager  = new TurnManager(executionOrder);
-        TurnManager printManager = new TurnManager(executionOrder);
+        TurnManager calcManager  = new TurnManager(executionOrder); // For calcs
+        TurnManager printManager = new TurnManager(executionOrder); // For prints
 
-        TurnManager turnManager = new TurnManager(executionOrder);
-
-        // Мы передаем 'turnManager' и уникальный ID (1, 2, 3, 4) в каждый таск
-        TaskOneAndTwo task1 = new TaskOneAndTwo("Olegos (Фамилия)", true, 1, list1,
+        // Th1 (Task 1, flag=true, использует list1)
+        TaskOneAndTwo task1 = new TaskOneAndTwo("Hamuev | Drыga", true, list1,
                 latch, calcManager, printManager, barrier, 1); // ID = 1
 
-        TaskOneAndTwo task2 = new TaskOneAndTwo("Hamuev (Имя)", false, 2, list2,
+        // Th2 (Task 2, flag=false, использует list2)
+        TaskOneAndTwo task2 = new TaskOneAndTwo("OLEG | Daniil", false, list2,
                 latch, calcManager, printManager, barrier, 2); // ID = 2
 
-        TaskOneAndTwo task3 = new TaskOneAndTwo("Конкурентное программирование (Дисциплина)", true, 1, list1,
-                latch, calcManager, printManager, barrier, 3); // ID = 3
+        // Th3 (Task 3, flag=true)
+        TaskThreeAndFour task3 = new TaskThreeAndFour("Конкурентное программирование", true,
+                latch, calcManager, printManager, barrier, 3, 333, 999); // ID = 3
 
-        TaskOneAndTwo task4 = new TaskOneAndTwo("FI-211 (Группа)", false, 2, list2,
-                latch, calcManager, printManager, barrier, 4);
+        // Th4 (Task 4, flag=false)
+        TaskThreeAndFour task4 = new TaskThreeAndFour("CR-233", false,
+                latch, calcManager, printManager, barrier, 4, 9999, 3333); // ID = 4
+
 
         Thread th1 = new Thread(task1);
         Thread th2 = new Thread(task2);
@@ -44,5 +45,6 @@ public class Lab3Var2 {
         th1.start(); th2.start(); th3.start(); th4.start();
 
         latch.await();
+        System.out.println("--- Main: Все потоки завершили работу ---");
     }
 }

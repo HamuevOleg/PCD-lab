@@ -1,42 +1,41 @@
-import java.util.ArrayList;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier; // 🔥 Импортируем барьер
+import java.util.concurrent.CyclicBarrier;
 
-public class TaskOneAndTwo implements Runnable {
-    boolean whichTaskIs; // true 1 or 2; false 3 or 4
+public class TaskThreeAndFour implements Runnable {
     String text;
-    boolean flag;
-    ArrayList<Integer> array;
+    boolean flag; // true = Task 3 (Вариант 9), false = Task 4 (Вариант 9)
 
-    // Synch
+    // Синхронизаторы
     CountDownLatch latch;
     TurnManager calcManager;
     TurnManager printManager;
     CyclicBarrier barrier;
     int myId;
+    int min;
+    int max;
 
     /**
-     * @param text         - Текст для Фазы 2 (Имя, Фамилия, и т.д.)
-     * @param flag         - for choosing the task : one or two
-     * @param array        - here is our data stored
+     * @param text         - Текст для Фазы 2 (Дисциплина, Группа)
+     * @param flag         - true для Задачи 3, false для Задачи 4
      * @param latch        - для main
      * @param calcManager  - Менеджер очереди для расчетов
      * @param printManager - Менеджер очереди для печати
      * @param barrier      - Барьер для ожидания
      * @param myId         - уникальный ID этого потока
      **/
-    TaskOneAndTwo(String text, boolean flag, ArrayList<Integer> array,
-                  CountDownLatch latch, TurnManager calcManager, TurnManager printManager,
-                  CyclicBarrier barrier, int myId) {
+    TaskThreeAndFour(String text, boolean flag,
+                     CountDownLatch latch, TurnManager calcManager, TurnManager printManager,
+                     CyclicBarrier barrier, int myId, int min, int max) {
         this.flag = flag;
         this.text = text;
-        this.array = array;
         this.latch = latch;
         this.calcManager = calcManager;
         this.printManager = printManager;
         this.barrier = barrier;
         this.myId = myId;
+        this.min = min;
+        this.max = max;
     }
 
     private void printTextWithDelay(String text) throws InterruptedException {
@@ -53,36 +52,29 @@ public class TaskOneAndTwo implements Runnable {
         try {
             calcManager.waitForTurn(myId);
 
+            System.out.println("Поток " + myId + " (" + text.split(" ")[0] + ") начинает итерацию:");
 
-            int sum = 0;
-
-            // if first_part - true -> task 1 or 2
-
-            ArrayList<Integer> tmp_array = new ArrayList<>();
-            for (int i = 0; i < array.size(); i++) {
-                if (array.get(i) % 2 == 0) {
-                    tmp_array.add(array.get(i));
-                }
-            }
             if (flag) {
-                for (int i = 0; i < tmp_array.size(); i++) {
-                    sum += tmp_array.get(i);
+                for (int i = min; i <= max; i++) {
+
+                    if (i % 100 == 0) Thread.yield();
                 }
             } else {
-                for (int i = tmp_array.size() - 1; i >= 0; i--) {
-                    sum += tmp_array.get(i);
+                for (int i = min; i >= max; i--) {
+
+                    if (i % 100 == 0) Thread.yield();
                 }
             }
-            System.out.println("Поток " + myId + " (" + text.split(" ")[0] + "): ЗАВЕРШИЛ РАСЧЕТ, sum = " + sum);
+
+
+            System.out.println("\nПоток " + myId + " (" + text.split(" ")[0] + "): ЗАВЕРШИЛ РАСЧЕТ (итерация).");
 
             calcManager.nextTurn();
 
             barrier.await();
 
             printManager.waitForTurn(myId);
-
             printTextWithDelay(this.text);
-
             printManager.nextTurn();
 
         } catch (InterruptedException | BrokenBarrierException e) {
