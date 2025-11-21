@@ -1,51 +1,49 @@
-import java.util.Random;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * The Consumer thread (implements Runnable).
- * It takes a specific number of items ('Z' parameter) from the BlockingQueue
- * and then finishes.
- */
 public class Picker implements Runnable {
 
     private final BlockingQueue<Integer> queue;
-    private final int totalItemsToConsume; // 'Z' parameter
-    private final Random random = new Random();
-    private final String name; // Thread name
-    private final CountDownLatch latch; // The latch to count down
+    private final int totalItemsToConsume;
+    private final String name;
+    private final AtomicInteger activePickers;
+    private final Object monitor;
     private int itemsConsumed = 0;
 
-    public Picker(String name, BlockingQueue<Integer> queue, int totalItemsToConsume, CountDownLatch latch) {
+    public Picker(String name, BlockingQueue<Integer> queue, int totalItemsToConsume, AtomicInteger activePickers, Object monitor) {
         this.name = name;
         this.queue = queue;
         this.totalItemsToConsume = totalItemsToConsume;
-        this.latch = latch;
+        this.activePickers = activePickers;
+        this.monitor = monitor;
     }
 
-    @Override
     public void run() {
         try {
             while (itemsConsumed < totalItemsToConsume) {
-                // 1. Get one item. (BLOCKS if empty)
-                int item = queue.take();
+                if (queue.isEmpty()) {
+                    System.out.println(name + ": Depot is EMPTY! Waiting...");
+                }
+
+                Integer item = queue.take();
+
                 itemsConsumed++;
-
-                System.out.println(name + " got: " + item
-                        + " (" + itemsConsumed + "/" + totalItemsToConsume + ")"
-                        + ". Stock is now: " + queue.size());
-
-                // 2. Sleep to simulate consumption time
-                Thread.sleep(random.nextInt(100));
+                System.out.println(name + " took: " + item +
+                        " (" + itemsConsumed + "/" + totalItemsToConsume + ")");
             }
+            System.out.println(name + " IS SATISFIED.");
+
         } catch (InterruptedException e) {
-            System.out.println(name + " was interrupted.");
-            Thread.currentThread().interrupt();
+            e.printStackTrace();
         } finally {
-            // 3. Signal that this consumer is done
-            System.out.println("===== " + name + " is SATISFIED ("
-                    + itemsConsumed + " items) and FINISHED. =====");
-            latch.countDown();
+            int left = activePickers.decrementAndGet();
+            System.out.println(name + " leaving. Pickers left: " + left);
+
+            if (left == 0) {
+                synchronized (monitor) {
+                    monitor.notify();
+                }
+            }
         }
     }
 }
