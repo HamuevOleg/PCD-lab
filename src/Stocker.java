@@ -12,21 +12,17 @@ public class Stocker implements Runnable {
     private final ItemGenerator generator;
     private final int itemsPerProduction; // 'F' parameter
     private final Random random = new Random();
-    private final int sleepTimeMs;
     private final String name; // Thread name
 
-    public Stocker(String name, BlockingQueue<Integer> queue, ItemGenerator generator, int itemsPerProduction, int sleepTimeMs) {
+    public Stocker(String name, BlockingQueue<Integer> queue, ItemGenerator generator, int itemsPerProduction) {
         this.name = name;
         this.queue = queue;
         this.generator = generator;
         this.itemsPerProduction = itemsPerProduction;
-        this.sleepTimeMs = sleepTimeMs;
     }
 
-    @Override
     public void run() {
         try {
-            // This thread runs indefinitely until interrupted
             while (true) {
                 // 1. Generate 'F' items and put them in the queue one by one
                 for (int i = 0; i < itemsPerProduction; i++) {
@@ -41,15 +37,64 @@ public class Stocker implements Runnable {
                 }
 
                 System.out.println("--- " + name + " finished a batch of " + itemsPerProduction + " items. ---");
+                Thread.sleep(random.nextInt(100)import java.util.Random;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 
-                // 3. Sleep to simulate production time
-                Thread.sleep(random.nextInt(sleepTimeMs));
+/**
+ * The Consumer thread (implements Runnable).
+ * It takes a specific number of items ('Z' parameter) from the BlockingQueue
+ * and then finishes.
+ */
+                public class Picker implements Runnable {
+
+                    private final BlockingQueue<Integer> queue;
+                    private final int totalItemsToConsume; // 'Z' parameter
+                    private final Random random = new Random();
+                    private final String name; // Thread name
+                    private final CountDownLatch latch; // The latch to count down
+                    private int itemsConsumed = 0;
+
+                    public Picker(String name, BlockingQueue<Integer> queue, int totalItemsToConsume, CountDownLatch latch) {
+                        this.name = name;
+                        this.queue = queue;
+                        this.totalItemsToConsume = totalItemsToConsume;
+                        this.latch = latch;
+                    }
+
+                    @Override
+                    public void run() {
+                        try {
+                            while (itemsConsumed < totalItemsToConsume) {
+                                // 1. Get one item. (BLOCKS if empty)
+                                int item = queue.take();
+                                itemsConsumed++;
+
+                                System.out.println(name + " got: " + item
+                                        + " (" + itemsConsumed + "/" + totalItemsToConsume + ")"
+                                        + ". Stock is now: " + queue.size());
+
+                                // 2. Sleep to simulate consumption time
+                                Thread.sleep(random.nextInt(100));
+                            }
+                        } catch (InterruptedException e) {
+                            System.out.println(name + " was interrupted.");
+                            Thread.currentThread().interrupt();
+                        } finally {
+                            // 3. Signal that this consumer is done
+                            System.out.println("===== " + name + " is SATISFIED ("
+                                    + itemsConsumed + " items) and FINISHED. =====");
+                            latch.countDown();
+                        }
+                    }
+                });
             }
         } catch (InterruptedException e) {
             // This block executes when executor.shutdownNow() is called
             System.out.println(name + " was interrupted and is stopping.");
             // Restore the interrupted status
             Thread.currentThread().interrupt();
+            e.printStackTrace();
         }
     }
 }
